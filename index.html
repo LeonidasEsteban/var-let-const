@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>VAR vs LET vs CONST</title>
+  <style>
+    body {
+      background: #f6df1d;
+      font-family: system-ui;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+
+    .container {
+      color: #e90063;
+      font-size: 2.8em;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>VAR vs LET vs CONST</h1>
+  <h1 id="container" class="container"></h1>
+  <span>
+    <button id="type">Type</button>
+    <button id="name">Name</button>
+    <button id="random">Random</button>
+  </span>
+
+  <script>
+    // scope
+    // global function block
+
+    // var
+    // Se puede re inicializar
+    // se puede re asignar
+    // su contexto es de función
+    // global
+
+    // let
+    // NO se puede re inicializar
+    // se pude re asignar
+    // su contexto es de bloque
+
+    // const
+    // NO se pude re inicializar
+    // NO se pude re asignar
+    // NO es inmutable
+
+    // var pokemonType = 'grass'
+    // pokemonType = 'grass'
+    let pokemonType = 'electric'
+    if (pokemonType === 'electric') {
+      const pokemonName = 'pikachu'
+      const poke = {
+        name: 'pikachu'
+      }
+      poke.name = 'raichu'
+      pokemonType = 'eléctrico'
+      console.log(`mi pokemon es ${pokemonType} y se llama ${poke.name}`)
+    }
+
+
+    class API {
+      BASE_URL = 'https://pokeapi.co/api/v2/'
+      async fetch(id) {
+        const searchId = id || this.id
+        const response = await fetch(`${this.BASE_URL}pokemon/${searchId}`)
+        const pokemon = await response.json()
+        this.pokemon = pokemon
+        return pokemon
+      }
+    }
+
+    class Pokemon extends API {
+      constructor(id) {
+        super(id)
+        this.id = id
+        const self = this
+        this.$type.addEventListener('click', function() {
+          console.log(this)
+          self.renderType()
+        })
+        this.$name.addEventListener('click', () => {
+          console.log(this)
+          this.renderName()
+        })
+        this.$random.addEventListener('click', () => {
+          console.log(this.randomId)
+          this.fetch(this.randomId)
+          .then(() => {
+            this.renderName()
+            this.fetch(this.randomId)
+            .then(() => {
+              this.renderName()
+            })
+          })
+        })
+      }
+      $container = document.querySelector('#container')
+      $type = document.querySelector('#type')
+      $name = document.querySelector('#name')
+      $random = document.querySelector('#random')
+
+      get randomId() {
+        return Math.floor(Math.random() * (150 - 1) + 1)
+      }
+      renderName() {
+        this.$container.textContent = `Pokemon encontrado ${this.pokemon.name}`
+      }
+      renderType() {
+        const myFavoriteType = 'electric'
+        let isMyFavoriteType = false
+
+        this.pokemon.types.forEach((item) => {
+          if (item.type.name === myFavoriteType) {
+            isMyFavoriteType = true
+          }
+        })
+        if (isMyFavoriteType) {
+          this.$container.textContent = `Es ${myFavoriteType} mi tipo favorito 🤩`
+        } else {
+          this.$container.textContent = `Es de tipo ${this.pokemon.types[0].type.name} 😐`
+        }
+      }
+    }
+
+    const pokemon = new Pokemon(25)
+    pokemon.fetch()
+    .then(() => {
+      pokemon.renderName()
+    })
+  </script>
+</body>
+
+</html>
